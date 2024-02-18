@@ -3,6 +3,7 @@ const app=express()
 const mongoose=require('mongoose')
 const dotenv=require('dotenv')
 const cors=require('cors')
+const multer=require('multer')
 const cookieParser=require('cookie-parser')
 const authRoute=require('./routes/auth')
 const userRoute=require('./routes/users')
@@ -29,7 +30,25 @@ app.use(cookieParser())
 app.use("/api/auth",authRoute)
 app.use("/api/users",userRoute)
 app.use("/api/posts",postRoute)
-// app.use("/api/comments",commentRoute)
+app.use("/api/comments",commentRoute)
+
+//image upload
+
+const storage=multer.diskStorage({
+    destination:(req,file,fn)=>{
+        fn(null,"images")
+    },
+    filename:(req,file,fn)=>{
+        fn(null,req.body.img)
+        // fn(null,"image1.jpg")
+
+    }
+})
+
+const upload=multer({storage:storage})
+app.post("/api/upload",upload.single("file"),(req,res)=>{
+    res.status(200).json("image has been uploaded successfully!")
+})
 
 app.listen(process.env.PORT,()=>{
     connectDB()
